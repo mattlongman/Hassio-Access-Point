@@ -8,7 +8,7 @@
   "startup": "system",
   "boot": "auto",
   "host_network": true,
-  "apparmor": false,
+  "apparmor": true,
   "host_dbus": true,
   "full_access": true,
   "privileged": [
