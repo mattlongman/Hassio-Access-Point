@@ -1,6 +1,6 @@
 {
   "name": "Hass.io Access Point",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "slug": "hassio-access-point",
   "description": "Create a WiFi access point to directly connect devices to Home Assistant",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
@@ -10,13 +10,8 @@
   "host_network": true,
   "apparmor": true,
   "host_dbus": true,
-  "full_access": true,
   "privileged": [
-    "NET_ADMIN",
-    "SYS_ADMIN",
-    "SYS_RAWIO",
-    "SYS_TIME",
-    "SYS_NICE"
+    "NET_ADMIN"
   ],
   "options": {
     "ssid": "",
