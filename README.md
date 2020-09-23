@@ -10,10 +10,7 @@ Use your hass.io host as a WiFi access point - perfect for off-grid and security
 ## Installation
 
 Please add
-```txt
-https://github.com/mattlongman/hassio-access-point
-```
-to your hass.io addon repositories list. If you're not sure how, see [instructions](https://www.home-assistant.io/hassio/installing_third_party_addons/) on the Home Assistant website.
+`https://github.com/mattlongman/hassio-access-point` to your hass.io addon repositories list. If you're not sure how, see [instructions](https://www.home-assistant.io/hassio/installing_third_party_addons/) on the Home Assistant website.
 
 ## Config
 
