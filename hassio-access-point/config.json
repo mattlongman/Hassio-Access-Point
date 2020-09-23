@@ -18,9 +18,6 @@
     "SYS_TIME",
     "SYS_NICE"
   ],
-  "devices": [
-    "/dev/mem:/dev/mem:rwm"
-  ],
   "options": {
     "ssid": "",
     "wpa_passphrase": "",
