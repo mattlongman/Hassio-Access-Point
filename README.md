@@ -53,4 +53,4 @@ Note: use either allow or deny lists for MAC filtering. If using allow, deny wil
 ```
 
 
-**Note**: This project was forked from [https://github.com/davidramosweb/hassio-addons/tree/master/hassio-hostapd]https://github.com/davidramosweb/hassio-addons/tree/f932481fa0503bf0f0b3f8a705b40780d3fe469a. I've submitted a lot of the functionality of this project back as a PR, but some of the extra stuff is outside the scope of a hostapd addon.
+**Note**: This project was forked from [https://github.com/davidramosweb/hassio-addons](https://github.com/davidramosweb/hassio-addons/tree/f932481fa0503bf0f0b3f8a705b40780d3fe469a). I've submitted a lot of the functionality of this project back as a PR, but some of the extra stuff is outside the scope of a hostapd addon.
