@@ -9,6 +9,8 @@ term_handler(){
 	exit 0
 }
 
+echo "Starting..."
+
 CONFIG_PATH=/data/options.json
 
 SSID=$(jq --raw-output ".ssid" $CONFIG_PATH)
@@ -30,18 +32,14 @@ if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
 fi
 
+# Create and add our interface to interfaces file
 echo "iface $INTERFACE inet static"$'\n' >> /etc/network/interfaces
-
 
 echo "Set nmcli managed no"
 nmcli dev set $INTERFACE managed no
 
 # Setup signal handlers
 trap 'term_handler' SIGTERM
-
-echo "Starting..."
-
-
 
 ### MAC address filtering
 ## Allow is more restrictive, so we prioritise that and set
@@ -116,21 +114,14 @@ fi
 # Setup interface
 echo "Setup interface ..."
 
-#ip link set wlan0 down
-#ip addr flush dev wlan0
-#ip addr add ${IP_ADDRESS}/24 dev wlan0
-#ip link set wlan0 up
-
 ## extra killall thrown in - not required? ## killall hostapd
 
 ip link set $INTERFACE down
-
 
 ## move this ^ ## echo "iface $INTERFACE inet static"$'\n' >> /etc/network/interfaces
 echo "address $ADDRESS"$'\n' >> /etc/network/interfaces
 echo "netmask $NETMASK"$'\n' >> /etc/network/interfaces
 echo "broadcast $BROADCAST"$'\n' >> /etc/network/interfaces
-
 
 ip link set $INTERFACE up
 
