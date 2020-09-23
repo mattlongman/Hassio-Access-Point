@@ -32,7 +32,7 @@ to your hass.io addon repositories list. If you're not sure how, see [instructio
 - allow_mac_addresses (optional): List of MAC addresses to allow. Note: if using allow, blocks everything not in list
 - deny_mac_addresses (optional): List of MAC addresses to block. Note: if using deny, allows everything not in list.
 
-Note: only use allow or deny lists for MAC filtering. If using allow, deny will be ignored.
+Note: use either allow or deny lists for MAC filtering. If using allow, deny will be ignored.
 
 ### Example configuration
 
@@ -53,4 +53,4 @@ Note: only use allow or deny lists for MAC filtering. If using allow, deny will 
 ```
 
 
-Note: This project was forked from https://github.com/davidramosweb/hassio-addons/tree/f932481fa0503bf0f0b3f8a705b40780d3fe469a. I've submitted a lot of the functionality of this project back as a PR, but some of the extra stuff is outside the scope of a hostapd addon.
+**Note**: This project was forked from [https://github.com/davidramosweb/hassio-addons/tree/master/hassio-hostapd]https://github.com/davidramosweb/hassio-addons/tree/f932481fa0503bf0f0b3f8a705b40780d3fe469a. I've submitted a lot of the functionality of this project back as a PR, but some of the extra stuff is outside the scope of a hostapd addon.
