@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.0] - 2020-09-25
+
+### Added
+- Add an debug option to addon config. debug=0 for mininal output. debug=1 to show addon detail. debug=2 for same as 1 + run hostapd in debug mode.
+
 ## [0.1.1] - 2020-09-23
 
 ### Removed
