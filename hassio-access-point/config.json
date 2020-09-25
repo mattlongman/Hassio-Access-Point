@@ -26,7 +26,8 @@
     "dhcp_start_addr": "192.168.99.10",
     "dhcp_end_addr": "192.168.99.20",
     "allow_mac_addresses": [],
-    "deny_mac_addresses": []
+    "deny_mac_addresses": [],
+    "debug": 0
 
   },
   "schema": {
@@ -42,6 +43,7 @@
     "dhcp_start_addr": "str",
     "dhcp_end_addr": "str",
     "allow_mac_addresses": ["str"],
-    "deny_mac_addresses": ["str"]
+    "deny_mac_addresses": ["str"],
+    "debug": "int"
   }
 } 
