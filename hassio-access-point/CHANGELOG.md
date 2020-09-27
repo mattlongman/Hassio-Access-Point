@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+Notes:
+Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
+
 ## [0.2.0] - 2020-09-25
 
 ### Added
