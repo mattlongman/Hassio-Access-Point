@@ -2,9 +2,9 @@
 
 ## [Unreleased]
 
-Notes:
-Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
-=======
+### Notes:
+- Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
+
 
 ## [0.2.1] - 2020-10-13
 
