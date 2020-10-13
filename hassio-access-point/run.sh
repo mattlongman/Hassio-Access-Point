@@ -142,7 +142,8 @@ if [ ${#ALLOW_MAC_ADDRESSES} -ge 1 ]; then
 
 fi
 
-
+# Set address for the selected interface. Not sure why this is now not being set via /etc/network/interfaces, but maybe interfaces file is no longer required...
+ifconfig $INTERFACE $ADDRESS netmask $NETMASK broadcast $BROADCAST
 
 # Add interface to hostapd.conf
 logger "Add to hostapd.conf: interface=$INTERFACE" 1
