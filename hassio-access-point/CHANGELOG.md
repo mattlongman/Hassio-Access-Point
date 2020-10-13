@@ -1,9 +1,16 @@
 # Changelog
 
+<<<<<<< Updated upstream
 ## [Unreleased]
 
 Notes:
 Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
+=======
+## [0.2.1] - 2020-10-13
+
+### Fixed
+- [Issue](https://github.com/mattlongman/Hassio-Access-Point/issues/1) where AP started and clients could connect, but IP addresses were not being assigned. dnsmasq error: "dnsmasq: warning: interface wlan0 does not currently exist". This seems to be caused by the interface not having an IP address set. Not sure why this isn't being set via interfaces file, but added an ifconfig command to set address/subnet mask/broadcast address.
+>>>>>>> Stashed changes
 
 ## [0.2.0] - 2020-09-25
 
