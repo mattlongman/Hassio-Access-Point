@@ -34,6 +34,7 @@ DHCP_END_ADDR=$(jq --raw-output ".dhcp_end_addr" $CONFIG_PATH)
 ALLOW_MAC_ADDRESSES=$(jq --raw-output '.allow_mac_addresses | join(" ")' $CONFIG_PATH)
 DENY_MAC_ADDRESSES=$(jq --raw-output '.deny_mac_addresses | join(" ")' $CONFIG_PATH)
 DEBUG=$(jq --raw-output '.debug' $CONFIG_PATH)
+HOSTAPD_CONFIG_OVERRIDE=$(jq --raw-output '.hostapd_config_override | join(" ")' $CONFIG_PATH)
 
 # Set interface as wlan0 if not specified in config
 if [ ${#INTERFACE} -eq 0 ]; then
@@ -149,6 +150,16 @@ ifconfig $INTERFACE $ADDRESS netmask $NETMASK broadcast $BROADCAST
 logger "Add to hostapd.conf: interface=$INTERFACE" 1
 echo "interface=$INTERFACE"$'\n' >> /hostapd.conf
 
+# Append override options to hostapd.conf
+if [ ${#HOSTAPD_CONFIG_OVERRIDE} -ge 1 ]; then
+    logger "# Custom hostapd config options:" 0
+    HOSTAPD_OVERRIDES=($HOSTAPD_CONFIG_OVERRIDE)
+    for override in "${HOSTAPD_OVERRIDES[@]}"; do
+        echo "$override"$'\n' >> /hostapd.conf
+        logger "Add to hostapd.conf: $override" 0
+    done
+fi
+
 # Setup dnsmasq.conf if DHCP is enabled in config
 if [ $DHCP -eq 1 ]; then
     logger "# DHCP enabled. Setup dnsmasq:" 1
@@ -167,6 +178,7 @@ if [ $DHCP -eq 1 ]; then
 fi
 
 logger "## Starting hostapd daemon" 1
+# If debug level is greater than 1, start hostapd in debug mode
 if [ $DEBUG -gt 1 ]; then
     killall -q hostapd; hostapd -d /hostapd.conf & wait ${!}
 else

@@ -5,6 +5,10 @@
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 
+## [0.3.0] - 2020-10-15
+
+### Added
+- Added a new config addon option: hostapd_config_override to allow additions/overrides to the hostapd config file (run.sh appends to the config file once everything else has been run, so for overriding an existing entry in the file, the later entry will take precedence). hostapd_config_override is a dictionary, so even if you're not overriding anything, `hostapd_config_override: []` must be in the addon options to allow you to save the addon config (if anyone knows how to make dictionaries optional, I'd love to know how..). Fix for [this](https://github.com/mattlongman/Hassio-Access-Point/issues/2).
 
 ## [0.2.1] - 2020-10-13
 
