@@ -5,6 +5,11 @@
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 
+## [0.3.1] - 2020-10-21
+
+### Fixed
+- Conflict on port 53, as per [this issue](https://github.com/mattlongman/Hassio-Access-Point/issues/3). Added `port=0` to dnsmasq.conf as a fix (to disable DNS), but will explore expanding the DNS options as part of a future update.
+
 ## [0.3.0] - 2020-10-15
 
 ### Added
