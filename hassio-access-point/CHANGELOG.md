@@ -5,6 +5,11 @@
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 
+## [0.4.0] - 2021-07-10
+
+### Added
+- Feature request: [Route traffic from wlan0 to eth0](https://github.com/mattlongman/Hassio-Access-Point/issues/5). Internet access for clients can be enabled with `client_internet_access: '1'`. If DHCP is also enabled, Hassio-Access-Point will try to get the parent host's DNS servers (not just container DNS servers), and server to clients as part of the DHCP config. This can be overridden with e.g. `client_dns_override: ['1.1.1.1', '8.8.8.8']`. If DHCP is not enabled, `client_internet_access: '1'` will still work, but DNS server will need to be set manually as with the rest of the IP config.
+
 ## [0.3.1] - 2020-10-21
 
 ### Fixed
