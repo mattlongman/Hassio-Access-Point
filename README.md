@@ -6,6 +6,7 @@ Use your hass.io host as a WiFi access point - perfect for off-grid and security
 - Hidden or visible SSIDs
 - DHCP server (using dnsmasq)
 - MAC address filtering (allow/deny)
+- Internet routing for clients **CURRENTLY IN DEV BRANCH. See [[Feature Request] Route traffic from wlan0 to eth0](https://github.com/mattlongman/Hassio-Access-Point/issues/5) for config**
 
 ## Installation
 
