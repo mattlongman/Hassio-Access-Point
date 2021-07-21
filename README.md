@@ -4,8 +4,9 @@ Use your hass.io host as a WiFi access point - perfect for off-grid and security
 ## Main features
 - Create a WiFi access point with built-in (Raspberry Pi) or external WiFi (USB) cards (using hostapd)
 - Hidden or visible SSIDs
-- DHCP server (using dnsmasq)
+- DHCP server (Optional. Uses dnsmasq)
 - MAC address filtering (allow/deny)
+- Internet routing for clients (Optional)
 
 ## Installation
 
@@ -30,6 +31,8 @@ Please add
 - **deny_mac_addresses** (_optional_): List of MAC addresses to block. Note: if using deny, allows everything not in list
 - **debug** (_optional_): Set logging level. 0 = basic output, 1 = show addon detail, 2 = same as 1 plus run hostapd in debug mode
 - **hostapd_config_override** (_optional_): List of hostapd config options to add to hostapd.conf (can be used to override existing options)
+- **client_internet_access** (_optional_): Provide internet access for clients. 1 = enable
+- **client_dns_override** (_optional_): Specify list of DNS servers for clients. Requires DHCP to be enabled. Note: Add-on will try to use DNS servers of the parent host by default.
 
 Note: use either allow or deny lists for MAC filtering. If using allow, deny will be ignored.
 
@@ -50,8 +53,13 @@ Note: use either allow or deny lists for MAC filtering. If using allow, deny wil
     "allow_mac_addresses": [],
     "deny_mac_addresses": ['ab:cd:ef:fe:dc:ba'],
     "debug": "0",
-    "hostapd_config_override": []
+    "hostapd_config_override": [],
+    "client_internet_access": '1',
+    "client_dns_override": ['1.1.1.1', '8.8.8.8']
 ```
 
+### Device & OS compatibility
 
-**Note**: This project was forked from [https://github.com/davidramosweb/hassio-addons](https://github.com/davidramosweb/hassio-addons/tree/f932481fa0503bf0f0b3f8a705b40780d3fe469a). I've submitted a lot of the functionality of this project back as a PR, but some of the extra stuff is outside the scope of a hostapd addon, so I'll leave it here for now as a more expandable hass.io access point addon.
+New releases will always be tested on the latest Home Assistant OS using Raspberry Pi 3B+ and Pi 4, but existing versions won't be proactively tested when new Home Assistant OS/Supervisor versions are released. If a new HAOS/Supervisor version breaks something, please raise an issue.
+
+This add-on should work with 32 & 64 bit HAOS, and has also been tested on Debian 10 with Home Assistant Supervised.
