@@ -5,6 +5,11 @@
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 
+## [0.4.1] - 2021-07-21
+
+### Added
+- Allow DNS override for clients even if internet routing isn't enabled (allowing resolution of local hosts if the add-ons parent host doesn't have the correct DNS servers set).
+
 ## [0.4.0] - 2021-07-10
 
 ### Added
