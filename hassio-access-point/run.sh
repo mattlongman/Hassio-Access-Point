@@ -162,11 +162,6 @@ if [ ${#HOSTAPD_CONFIG_OVERRIDE} -ge 1 ]; then
     done
 fi
 
-
-
-
-
-
 # Setup dnsmasq.conf if DHCP is enabled in config
 if [ $DHCP -eq 1 ]; then
     logger "# DHCP enabled. Setup dnsmasq:" 1
@@ -174,11 +169,9 @@ if [ $DHCP -eq 1 ]; then
         echo "dhcp-range=$DHCP_START_ADDR,$DHCP_END_ADDR,12h"$'\n' >> /dnsmasq.conf
         logger "Add to dnsmasq.conf: interface=$INTERFACE" 1
         echo "interface=$INTERFACE"$'\n' >> /dnsmasq.conf
-    
-    # Setup Client Internet Access
-    ## Step 1: DNS
-    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        dns_array=()
+
+    ## DNS
+    dns_array=()
         if [ ${#CLIENT_DNS_OVERRIDE} -ge 1 ]; then
             dns_string="dhcp-option=6"
             DNS_OVERRIDES=($CLIENT_DNS_OVERRIDE)
@@ -204,7 +197,11 @@ if [ $DHCP -eq 1 ]; then
             fi
 
         fi
-        ## Step 2: Route traffic
+    
+    # Setup Client Internet Access
+    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
+        
+        ## Route traffic
         iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
         iptables -P FORWARD ACCEPT
         iptables -F FORWARD
