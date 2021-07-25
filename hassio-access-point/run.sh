@@ -35,13 +35,15 @@ ALLOW_MAC_ADDRESSES=$(jq --raw-output '.allow_mac_addresses | join(" ")' $CONFIG
 DENY_MAC_ADDRESSES=$(jq --raw-output '.deny_mac_addresses | join(" ")' $CONFIG_PATH)
 DEBUG=$(jq --raw-output '.debug' $CONFIG_PATH)
 HOSTAPD_CONFIG_OVERRIDE=$(jq --raw-output '.hostapd_config_override | join(" ")' $CONFIG_PATH)
+CLIENT_INTERNET_ACCESS=$(jq --raw-output ".client_internet_access" $CONFIG_PATH)
+CLIENT_DNS_OVERRIDE=$(jq --raw-output '.client_dns_override | join(" ")' $CONFIG_PATH)
 
 # Set interface as wlan0 if not specified in config
 if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
 fi
 
-# Set interface as wlan0 if not specified in config
+# Set debug as 0 if not specified in config
 if [ ${#DEBUG} -eq 0 ]; then
     DEBUG=0
 fi
@@ -167,8 +169,53 @@ if [ $DHCP -eq 1 ]; then
         echo "dhcp-range=$DHCP_START_ADDR,$DHCP_END_ADDR,12h"$'\n' >> /dnsmasq.conf
         logger "Add to dnsmasq.conf: interface=$INTERFACE" 1
         echo "interface=$INTERFACE"$'\n' >> /dnsmasq.conf
-	else
+
+    ## DNS
+    dns_array=()
+        if [ ${#CLIENT_DNS_OVERRIDE} -ge 1 ]; then
+            dns_string="dhcp-option=6"
+            DNS_OVERRIDES=($CLIENT_DNS_OVERRIDE)
+            for override in "${DNS_OVERRIDES[@]}"; do
+                dns_string+=",$override"
+            done
+            echo "$dns_string"$'\n' >> /dnsmasq.conf
+            logger "Add custom DNS: $dns_string" 0
+        else
+            IFS=$'\n' read -r -d '' -a dns_array < <( nmcli device show | grep IP4.DNS | awk '{print $2}' && printf '\0' )
+
+            if [ ${#dns_array[@]} -eq 0 ]; then
+                logger "Couldn't get DNS servers from host. Consider setting with 'client_dns_override' config option." 0
+            else
+                dns_string="dhcp-option=6"
+                for dns_entry in "${dns_array[@]}"; do
+                    dns_string+=",$dns_entry"
+        
+        
+                done
+                echo "$dns_string"$'\n' >> /dnsmasq.conf
+                logger "Add DNS: $dns_string" 0
+            fi
+
+        fi
+    
+    # Setup Client Internet Access
+    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
+        
+        ## Route traffic
+        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables -P FORWARD ACCEPT
+        iptables -F FORWARD
+    fi
+else
 	logger "# DHCP not enabled. Skipping dnsmasq" 1
+    # Setup Client Internet Access
+    ## No DHCP == No DNS. Must be set manually on client.
+    ## Step 1: Routing
+    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
+        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables -P FORWARD ACCEPT
+        iptables -F FORWARD
+    fi
 fi
 
 # Start dnsmasq if DHCP is enabled in config
