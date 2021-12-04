@@ -6,6 +6,9 @@ term_handler(){
 	ifdown $INTERFACE
 	ip link set $INTERFACE down
 	ip addr flush dev $INTERFACE
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iw dev $INTERFACE del
+    fi
 	exit 0
 }
 
@@ -27,6 +30,7 @@ ADDRESS=$(jq --raw-output ".address" $CONFIG_PATH)
 NETMASK=$(jq --raw-output ".netmask" $CONFIG_PATH)
 BROADCAST=$(jq --raw-output ".broadcast" $CONFIG_PATH)
 INTERFACE=$(jq --raw-output ".interface" $CONFIG_PATH)
+VINTERFACE=$(jq --raw-output ".virtual_interface" $CONFIG_PATH)
 HIDE_SSID=$(jq --raw-output ".hide_ssid" $CONFIG_PATH)
 DHCP=$(jq --raw-output ".dhcp" $CONFIG_PATH)
 DHCP_START_ADDR=$(jq --raw-output ".dhcp_start_addr" $CONFIG_PATH)
@@ -43,6 +47,12 @@ if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
 fi
 
+# If we use a virtual interface, INTERFACE points to the base interface
+if [ ${#VINTERFACE} -ne 0 ]; then
+    BASE_INTERFACE="${INTERFACE}"
+    INTERFACE="${VINTERFACE}"    
+fi
+
 # Set debug as 0 if not specified in config
 if [ ${#DEBUG} -eq 0 ]; then
     DEBUG=0
@@ -55,6 +65,15 @@ logger "# Setup interface:" 1
 logger "Add to /etc/network/interfaces: iface $INTERFACE inet static" 1
 # Create and add our interface to interfaces file
 echo "iface $INTERFACE inet static"$'\n' >> /etc/network/interfaces
+
+# Create virtual interface if needed
+if [ ${#VINTERFACE} -ne 0 ]; then
+    # If using virtual interface, channel must be the same as the base interface
+    CHANNEL=$(iw dev $BASE_INTERFACE info | grep channel | awk '{print $2}')
+    # Create virtual interface
+    logger "Run command: iw dev $BASE_INTERFACE interface add $INTERFACE type __ap" 1
+    iw dev $BASE_INTERFACE interface add $INTERFACE type __ap
+fi
 
 logger "Run command: nmcli dev set $INTERFACE managed no" 1
 nmcli dev set $INTERFACE managed no
@@ -195,33 +214,32 @@ if [ $DHCP -eq 1 ]; then
                 echo "$dns_string"$'\n' >> /dnsmasq.conf
                 logger "Add DNS: $dns_string" 0
             fi
-
         fi
-    
-    # Setup Client Internet Access
-    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        
-        ## Route traffic
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-        iptables -P FORWARD ACCEPT
-        iptables -F FORWARD
-    fi
 else
 	logger "# DHCP not enabled. Skipping dnsmasq" 1
-    # Setup Client Internet Access
     ## No DHCP == No DNS. Must be set manually on client.
-    ## Step 1: Routing
-    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-        iptables -P FORWARD ACCEPT
-        iptables -F FORWARD
+fi
+
+# Setup Client Internet Access
+if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
+    ## Route traffic
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iptables -t nat -A POSTROUTING -o $BASE_INTERFACE -j MASQUERADE
     fi
+    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    iptables -P FORWARD ACCEPT
+    iptables -F FORWARD
 fi
 
 # Start dnsmasq if DHCP is enabled in config
 if [ $DHCP -eq 1 ]; then
     logger "## Starting dnsmasq daemon" 1
 	killall -q dnsmasq; dnsmasq -C /dnsmasq.conf
+fi
+
+if [ ${#VINTERFACE} -ne 0 ]; then
+    # Don't know why it is needed, but hostapd fails later on without this delay
+    sleep 10
 fi
 
 logger "## Starting hostapd daemon" 1
@@ -231,3 +249,5 @@ if [ $DEBUG -gt 1 ]; then
 else
     killall -q hostapd; hostapd /hostapd.conf & wait ${!}
 fi
+
+term_handler
