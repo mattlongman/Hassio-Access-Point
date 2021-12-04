@@ -9,8 +9,32 @@ term_handler(){
     if [ ${#VINTERFACE} -ne 0 ]; then
         iw dev $INTERFACE del
     fi
+    cleanup_iptables
 	exit 0
 }
+
+
+function cleanup_iptables() {
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iptables -t nat -D POSTROUTING -o $BASE_INTERFACE -j MASQUERADE
+    fi
+    iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+    iptables -t nat -D PREROUTING -i $INTERFACE -j ACCEPT
+    iptables -D INPUT -i $INTERFACE -j DROP
+    iptables -D INPUT -i $INTERFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        wifi_net=$(ip addr show $BASE_INTERFACE | grep inet | awk '{print $2}')
+        if [ ${#wifi_net} -ne 0 ]; then
+            iptables -D FORWARD -i $INTERFACE -o $BASE_INTERFACE -d ${wifi_net} -j DROP
+        fi
+    fi
+    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    if [ ${#eth_net} -ne 0 ]; then
+        iptables -D FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
+    fi
+    iptables -D INPUT -p udp -i $INTERFACE --dport 67 -j ACCEPT
+}
+
 
 # Logging function to set verbosity of output to addon log
 logger(){
@@ -31,6 +55,7 @@ NETMASK=$(jq --raw-output ".netmask" $CONFIG_PATH)
 BROADCAST=$(jq --raw-output ".broadcast" $CONFIG_PATH)
 INTERFACE=$(jq --raw-output ".interface" $CONFIG_PATH)
 VINTERFACE=$(jq --raw-output ".virtual_interface" $CONFIG_PATH)
+ISOLATION=$(jq --raw-output ".isolation" $CONFIG_PATH)
 HIDE_SSID=$(jq --raw-output ".hide_ssid" $CONFIG_PATH)
 DHCP=$(jq --raw-output ".dhcp" $CONFIG_PATH)
 DHCP_START_ADDR=$(jq --raw-output ".dhcp_start_addr" $CONFIG_PATH)
@@ -111,6 +136,11 @@ fi
 # Sanitise config value for dhcp
 if [ $DHCP -ne 1 ]; then
         DHCP=0
+fi
+
+# Sanitise config value for isolation
+if [ $ISOLATION -ne 1 ]; then
+        ISOLATION=0
 fi
 
 if [[ -n $error ]]; then
@@ -229,6 +259,29 @@ if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
     iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
     iptables -P FORWARD ACCEPT
     iptables -F FORWARD
+fi
+
+# Setup network isolation
+if [ $ISOLATION -eq 1 ]; then
+    # Do not pass packets coming from AP to docker
+    iptables -t nat -I PREROUTING -i $INTERFACE -j ACCEPT
+    # Accept only locally-initiated traffic
+    iptables -I INPUT -i $INTERFACE -j DROP
+    iptables -I INPUT -i $INTERFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        # Prevent access to local wifi network from AP network
+        wifi_net=$(ip addr show $BASE_INTERFACE | grep inet | awk '{print $2}')
+        if [ ${#wifi_net} -ne 0 ]; then
+            iptables -I FORWARD -i $INTERFACE -o $BASE_INTERFACE -d ${wifi_net} -j DROP
+        fi
+    fi
+    # Prevent access to local eth network from AP network
+    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    if [ ${#eth_net} -ne 0 ]; then
+        iptables -I FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
+    fi
+    # Allow access to local DHCP server
+    iptables -I INPUT -p udp -i $INTERFACE --dport 67 -j ACCEPT
 fi
 
 # Start dnsmasq if DHCP is enabled in config
