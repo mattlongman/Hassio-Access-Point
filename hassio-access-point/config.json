@@ -30,7 +30,8 @@
     "debug": 0,
     "hostapd_config_override": [],
     "client_internet_access": "0",
-    "client_dns_override": []
+    "client_dns_override": [],
+    "dnsmasq_config_override": []
   },
   "schema": {
     "ssid": "str",
@@ -49,6 +50,7 @@
     "debug": "int",
     "hostapd_config_override": ["str"],
     "client_internet_access": "int",
-    "client_dns_override": ["str"]
+    "client_dns_override": ["str"],
+    "dnsmasq_config_override": ["str"]
   }
 } 

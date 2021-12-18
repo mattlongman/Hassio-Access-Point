@@ -4,6 +4,7 @@
 
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
+- Added a new config addon option: dnsmasq_config_override to allow additions/overrides to the dnsmasq config file, for example in order to add static DHCP leases with the dhcp-host= option. This option operates similarly to hostapd_config_override.
 
 ## [0.4.1] - 2021-07-21
 
