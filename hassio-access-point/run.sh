@@ -60,12 +60,14 @@ HIDE_SSID=$(jq --raw-output ".hide_ssid" $CONFIG_PATH)
 DHCP=$(jq --raw-output ".dhcp" $CONFIG_PATH)
 DHCP_START_ADDR=$(jq --raw-output ".dhcp_start_addr" $CONFIG_PATH)
 DHCP_END_ADDR=$(jq --raw-output ".dhcp_end_addr" $CONFIG_PATH)
+DNSMASQ_CONFIG_OVERRIDE=$(jq --raw-output '.dnsmasq_config_override | join(" ")' $CONFIG_PATH)
 ALLOW_MAC_ADDRESSES=$(jq --raw-output '.allow_mac_addresses | join(" ")' $CONFIG_PATH)
 DENY_MAC_ADDRESSES=$(jq --raw-output '.deny_mac_addresses | join(" ")' $CONFIG_PATH)
 DEBUG=$(jq --raw-output '.debug' $CONFIG_PATH)
 HOSTAPD_CONFIG_OVERRIDE=$(jq --raw-output '.hostapd_config_override | join(" ")' $CONFIG_PATH)
 CLIENT_INTERNET_ACCESS=$(jq --raw-output ".client_internet_access" $CONFIG_PATH)
 CLIENT_DNS_OVERRIDE=$(jq --raw-output '.client_dns_override | join(" ")' $CONFIG_PATH)
+DNSMASQ_CONFIG_OVERRIDE=$(jq --raw-output '.dnsmasq_config_override | join(" ")' $CONFIG_PATH)
 
 # Set interface as wlan0 if not specified in config
 if [ ${#INTERFACE} -eq 0 ]; then
@@ -245,6 +247,17 @@ if [ $DHCP -eq 1 ]; then
                 logger "Add DNS: $dns_string" 0
             fi
         fi
+
+    # Append override options to dnsmasq.conf
+    if [ ${#DNSMASQ_CONFIG_OVERRIDE} -ge 1 ]; then
+        logger "# Custom dnsmasq config options:" 0
+        DNSMASQ_OVERRIDES=($DNSMASQ_CONFIG_OVERRIDE)
+        for override in "${DNSMASQ_OVERRIDES[@]}"; do
+            echo "$override"$'\n' >> /dnsmasq.conf
+            logger "Add to dnsmasq.conf: $override" 0
+        done
+    fi
+
 else
 	logger "# DHCP not enabled. Skipping dnsmasq" 1
     ## No DHCP == No DNS. Must be set manually on client.
