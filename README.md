@@ -34,6 +34,7 @@ Please add
 - **hostapd_config_override** (_optional_): List of hostapd config options to add to hostapd.conf (can be used to override existing options)
 - **client_internet_access** (_optional_): Provide internet access for clients. 1 = enable
 - **client_dns_override** (_optional_): Specify list of DNS servers for clients. Requires DHCP to be enabled. Note: Add-on will try to use DNS servers of the parent host by default.
+- **dnsmasq_config_override** (_optional_): List of dnsmasq config options to add to dnsmasq.conf (can be used to override existing options, as well as reserving IPs, e.g. `dhcp-host=12:34:56:78:90:AB,192.168.99.123`)
 
 Note: use either allow or deny lists for MAC filtering. If using allow, deny will be ignored.
 
