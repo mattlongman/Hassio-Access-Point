@@ -4,10 +4,16 @@
 
 ### Notes:
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
-- **If anyone has any knowledge relating to the underlying modules, or just wants to assist with testing this addon, please get in touch, submit PRs, etc. I don't currently use this or have the capability to test it**
+- **If anyone has any knowledge relating to the underlying modules, or just wants to assist with testing this addon, please get in touch, submit PRs, etc.**
+
+## [0.4.3] - 2022-06-21
+
+### Fixed
+- [Issue](https://github.com/mattlongman/Hassio-Access-Point/issues/31) from @adosikas: `nmcli: command not found`. Added `apk add networkmanager-cli` to Dockerfile. Found this via [this PR](https://github.com/hassio-addons/addon-ssh/pull/415).
 
 ## [0.4.2] - 2022-06-14
 
+### Added
 - [PR](https://github.com/mattlongman/Hassio-Access-Point/pull/23) from @esotericnonsense (thanks!): Added a new config addon option: dnsmasq_config_override to allow additions/overrides to the dnsmasq config file, for example in order to add static DHCP leases with the dhcp-host= option. This option operates similarly to hostapd_config_override.
 
 ## [0.4.1] - 2021-07-21
