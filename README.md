@@ -24,6 +24,8 @@ Please add
 - **netmask** (**required**): Subnet mask of the network
 - **broadcast** (**required**): Broadcast address of the network
 - **interface** (_optional_): Which wlan card to use. Default: wlan0
+- **virtual_interface** (_optional_): If set (e.g. to wlan1) a new virtual interface will be used as access point, leaving the wlan0 interface working as station.
+- **isolation** (_optional_): Enable or disable network isolation. 0 = disable, 1 = enable. Defaults to disabled. Note: If the DNS server is provided by a local router, it will not be accessible inside the AP network. In that case you should set the _client_dns_override_ option to an external DNS, e.g. 8.8.8.8.
 - **hide_ssid** (_optional_): Whether SSID is visible or hidden. 0 = visible, 1 = hidden. Defaults to visible
 - **dhcp** (_optional_): Enable or disable DHCP server. 0 = disable, 1 = enable. Defaults to disabled
 - **dhcp_start_addr** (_optional_): Start address for DHCP range. Required if DHCP enabled

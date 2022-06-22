@@ -6,8 +6,35 @@ term_handler(){
 	ifdown $INTERFACE
 	ip link set $INTERFACE down
 	ip addr flush dev $INTERFACE
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iw dev $INTERFACE del
+    fi
+    cleanup_iptables
 	exit 0
 }
+
+
+function cleanup_iptables() {
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iptables -t nat -D POSTROUTING -o $BASE_INTERFACE -j MASQUERADE
+    fi
+    iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+    iptables -t nat -D PREROUTING -i $INTERFACE -j ACCEPT
+    iptables -D INPUT -i $INTERFACE -j DROP
+    iptables -D INPUT -i $INTERFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        wifi_net=$(ip addr show $BASE_INTERFACE | grep inet | awk '{print $2}')
+        if [ ${#wifi_net} -ne 0 ]; then
+            iptables -D FORWARD -i $INTERFACE -o $BASE_INTERFACE -d ${wifi_net} -j DROP
+        fi
+    fi
+    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    if [ ${#eth_net} -ne 0 ]; then
+        iptables -D FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
+    fi
+    iptables -D INPUT -p udp -i $INTERFACE --dport 67 -j ACCEPT
+}
+
 
 # Logging function to set verbosity of output to addon log
 logger(){
@@ -27,6 +54,8 @@ ADDRESS=$(jq --raw-output ".address" $CONFIG_PATH)
 NETMASK=$(jq --raw-output ".netmask" $CONFIG_PATH)
 BROADCAST=$(jq --raw-output ".broadcast" $CONFIG_PATH)
 INTERFACE=$(jq --raw-output ".interface" $CONFIG_PATH)
+VINTERFACE=$(jq --raw-output ".virtual_interface" $CONFIG_PATH)
+ISOLATION=$(jq --raw-output ".isolation" $CONFIG_PATH)
 HIDE_SSID=$(jq --raw-output ".hide_ssid" $CONFIG_PATH)
 DHCP=$(jq --raw-output ".dhcp" $CONFIG_PATH)
 DHCP_START_ADDR=$(jq --raw-output ".dhcp_start_addr" $CONFIG_PATH)
@@ -45,6 +74,12 @@ if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
 fi
 
+# If we use a virtual interface, INTERFACE points to the base interface
+if [ ${#VINTERFACE} -ne 0 ]; then
+    BASE_INTERFACE="${INTERFACE}"
+    INTERFACE="${VINTERFACE}"    
+fi
+
 # Set debug as 0 if not specified in config
 if [ ${#DEBUG} -eq 0 ]; then
     DEBUG=0
@@ -57,6 +92,15 @@ logger "# Setup interface:" 1
 logger "Add to /etc/network/interfaces: iface $INTERFACE inet static" 1
 # Create and add our interface to interfaces file
 echo "iface $INTERFACE inet static"$'\n' >> /etc/network/interfaces
+
+# Create virtual interface if needed
+if [ ${#VINTERFACE} -ne 0 ]; then
+    # If using virtual interface, channel must be the same as the base interface
+    CHANNEL=$(iw dev $BASE_INTERFACE info | grep channel | awk '{print $2}')
+    # Create virtual interface
+    logger "Run command: iw dev $BASE_INTERFACE interface add $INTERFACE type __ap" 1
+    iw dev $BASE_INTERFACE interface add $INTERFACE type __ap
+fi
 
 logger "Run command: nmcli dev set $INTERFACE managed no" 1
 nmcli dev set $INTERFACE managed no
@@ -94,6 +138,11 @@ fi
 # Sanitise config value for dhcp
 if [ $DHCP -ne 1 ]; then
         DHCP=0
+fi
+
+# Sanitise config value for isolation
+if [ $ISOLATION -ne 1 ]; then
+        ISOLATION=0
 fi
 
 if [[ -n $error ]]; then
@@ -197,7 +246,6 @@ if [ $DHCP -eq 1 ]; then
                 echo "$dns_string"$'\n' >> /dnsmasq.conf
                 logger "Add DNS: $dns_string" 0
             fi
-
         fi
 
     # Append override options to dnsmasq.conf
@@ -209,31 +257,55 @@ if [ $DHCP -eq 1 ]; then
             logger "Add to dnsmasq.conf: $override" 0
         done
     fi
-    
-    # Setup Client Internet Access
-    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
 
-        ## Route traffic
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-        iptables -P FORWARD ACCEPT
-        iptables -F FORWARD
-    fi
 else
 	logger "# DHCP not enabled. Skipping dnsmasq" 1
-    # Setup Client Internet Access
     ## No DHCP == No DNS. Must be set manually on client.
-    ## Step 1: Routing
-    if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-        iptables -P FORWARD ACCEPT
-        iptables -F FORWARD
+fi
+
+# Setup Client Internet Access
+if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
+    ## Route traffic
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        iptables -t nat -A POSTROUTING -o $BASE_INTERFACE -j MASQUERADE
     fi
+    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    iptables -P FORWARD ACCEPT
+    iptables -F FORWARD
+fi
+
+# Setup network isolation
+if [ $ISOLATION -eq 1 ]; then
+    # Do not pass packets coming from AP to docker
+    iptables -t nat -I PREROUTING -i $INTERFACE -j ACCEPT
+    # Accept only locally-initiated traffic
+    iptables -I INPUT -i $INTERFACE -j DROP
+    iptables -I INPUT -i $INTERFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
+    if [ ${#VINTERFACE} -ne 0 ]; then
+        # Prevent access to local wifi network from AP network
+        wifi_net=$(ip addr show $BASE_INTERFACE | grep inet | awk '{print $2}')
+        if [ ${#wifi_net} -ne 0 ]; then
+            iptables -I FORWARD -i $INTERFACE -o $BASE_INTERFACE -d ${wifi_net} -j DROP
+        fi
+    fi
+    # Prevent access to local eth network from AP network
+    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    if [ ${#eth_net} -ne 0 ]; then
+        iptables -I FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
+    fi
+    # Allow access to local DHCP server
+    iptables -I INPUT -p udp -i $INTERFACE --dport 67 -j ACCEPT
 fi
 
 # Start dnsmasq if DHCP is enabled in config
 if [ $DHCP -eq 1 ]; then
     logger "## Starting dnsmasq daemon" 1
 	killall -q dnsmasq; dnsmasq -C /dnsmasq.conf
+fi
+
+if [ ${#VINTERFACE} -ne 0 ]; then
+    # Don't know why it is needed, but hostapd fails later on without this delay
+    sleep 10
 fi
 
 logger "## Starting hostapd daemon" 1
@@ -243,3 +315,5 @@ if [ $DEBUG -gt 1 ]; then
 else
     killall -q hostapd; hostapd /hostapd.conf & wait ${!}
 fi
+
+term_handler
