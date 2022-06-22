@@ -28,7 +28,7 @@ function cleanup_iptables() {
             iptables -D FORWARD -i $INTERFACE -o $BASE_INTERFACE -d ${wifi_net} -j DROP
         fi
     fi
-    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    eth_net=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}')
     if [ ${#eth_net} -ne 0 ]; then
         iptables -D FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
     fi
@@ -289,7 +289,7 @@ if [ $ISOLATION -eq 1 ]; then
         fi
     fi
     # Prevent access to local eth network from AP network
-    eth_net=$(ip addr show eth0 | grep inet | awk '{print $2}')
+    eth_net=$(ip addr show eth0 | grep 'inet ' | awk '{print $2}')
     if [ ${#eth_net} -ne 0 ]; then
         iptables -I FORWARD -i $INTERFACE -o eth0 -d ${eth_net} -j DROP
     fi
