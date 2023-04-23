@@ -27,6 +27,7 @@ ADDRESS=$(jq --raw-output ".address" $CONFIG_PATH)
 NETMASK=$(jq --raw-output ".netmask" $CONFIG_PATH)
 BROADCAST=$(jq --raw-output ".broadcast" $CONFIG_PATH)
 INTERFACE=$(jq --raw-output ".interface" $CONFIG_PATH)
+ETH_INTERFACE=$(jq --raw-output ".eth_interface" $CONFIG_PATH)
 HIDE_SSID=$(jq --raw-output ".hide_ssid" $CONFIG_PATH)
 DHCP=$(jq --raw-output ".dhcp" $CONFIG_PATH)
 DHCP_START_ADDR=$(jq --raw-output ".dhcp_start_addr" $CONFIG_PATH)
@@ -43,6 +44,11 @@ DNSMASQ_CONFIG_OVERRIDE=$(jq --raw-output '.dnsmasq_config_override | join(" ")'
 # Set interface as wlan0 if not specified in config
 if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
+fi
+
+# Set eth_interface as eth0 if not specified in config
+if [ ${#ETH_INTERFACE} -eq 0 ]; then
+    INTERFACE="eth0"
 fi
 
 # Set debug as 0 if not specified in config
@@ -214,7 +220,7 @@ if [ $DHCP -eq 1 ]; then
     if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
 
         ## Route traffic
-        iptables-nft -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables-nft -t nat -A POSTROUTING -o $ETH_INTERFACE -j MASQUERADE
         iptables-nft -P FORWARD ACCEPT
         iptables-nft -F FORWARD
     fi
@@ -224,7 +230,7 @@ else
     ## No DHCP == No DNS. Must be set manually on client.
     ## Step 1: Routing
     if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        iptables-nft -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables-nft -t nat -A POSTROUTING -o $ETH_INTERFACE -j MASQUERADE
         iptables-nft -P FORWARD ACCEPT
         iptables-nft -F FORWARD
     fi
