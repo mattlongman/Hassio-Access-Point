@@ -48,7 +48,7 @@ fi
 
 # Set eth_interface as eth0 if not specified in config
 if [ ${#ETH_INTERFACE} -eq 0 ]; then
-    INTERFACE="eth0"
+    ETH_INTERFACE="eth0"
 fi
 
 # Set debug as 0 if not specified in config
