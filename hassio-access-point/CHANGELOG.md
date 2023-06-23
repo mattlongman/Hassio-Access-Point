@@ -6,7 +6,12 @@
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 - **If anyone has any knowledge relating to the underlying modules, or just wants to assist with testing this addon, please get in touch, submit PRs, etc.**
 
-## [0.4.6] - 2022-04-23
+## [0.4.7] - 2023-06-23
+
+### Fixed
+- IPtables dependency change as noted in [issue 42](https://github.com/mattlongman/Hassio-Access-Point/issues/42#issuecomment-1579294919). Thanks to [@tomduijf](https://github.com/tomduijf) for submitting [PR 48](https://github.com/mattlongman/Hassio-Access-Point/pull/48).
+
+## [0.4.6] - 2023-04-23
 
 ### Bump to revert 0.4.5
 
