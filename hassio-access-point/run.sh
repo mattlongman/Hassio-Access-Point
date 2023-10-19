@@ -40,6 +40,9 @@ CLIENT_INTERNET_ACCESS=$(jq --raw-output ".client_internet_access" $CONFIG_PATH)
 CLIENT_DNS_OVERRIDE=$(jq --raw-output '.client_dns_override | join(" ")' $CONFIG_PATH)
 DNSMASQ_CONFIG_OVERRIDE=$(jq --raw-output '.dnsmasq_config_override | join(" ")' $CONFIG_PATH)
 
+# Get the Default Route interface
+DEFAULT_ROUTE_INTERFACE=$(ip route show default | awk '{ print $5 }')
+
 # Set interface as wlan0 if not specified in config
 if [ ${#INTERFACE} -eq 0 ]; then
     INTERFACE="wlan0"
@@ -214,7 +217,7 @@ if [ $DHCP -eq 1 ]; then
     if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
 
         ## Route traffic
-        iptables-nft -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables-nft -t nat -A POSTROUTING -o $DEFAULT_ROUTE_INTERFACE -j MASQUERADE
         iptables-nft -P FORWARD ACCEPT
         iptables-nft -F FORWARD
     fi
@@ -224,7 +227,7 @@ else
     ## No DHCP == No DNS. Must be set manually on client.
     ## Step 1: Routing
     if [ $CLIENT_INTERNET_ACCESS -eq 1 ]; then
-        iptables-nft -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables-nft -t nat -A POSTROUTING -o $DEFAULT_ROUTE_INTERFACE -j MASQUERADE
         iptables-nft -P FORWARD ACCEPT
         iptables-nft -F FORWARD
     fi
