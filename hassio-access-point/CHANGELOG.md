@@ -6,6 +6,11 @@
 - Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
 - **If anyone has any knowledge relating to the underlying modules, or just wants to assist with testing this addon, please get in touch, submit PRs, etc.**
 
+## [0.4.8] - 2023-10-19
+
+### Fixed
+- [PR-56](https://github.com/mattlongman/Hassio-Access-Point/pull/56) from [rrooggiieerr](https://github.com/rrooggiieerr): "Breaking Change: On Arm based boards network names are enumerated based on device tree. This means that the first Ethernet devices will no longer be named eth0 but end0. This pull request proposes a solution by using the default route interface to forward client internet access to."
+
 ## [0.4.7] - 2023-06-23
 
 ### Fixed
