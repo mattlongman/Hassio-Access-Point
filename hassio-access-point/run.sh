@@ -17,7 +17,7 @@ logger(){
         echo $msg
     fi
 }
-echo "Starting Hass.io Access Point Addon"
+
 CONFIG_PATH=/data/options.json
 
 SSID=$(bashio::config "ssid")
@@ -102,26 +102,24 @@ if [ ${#ALLOW_MAC_ADDRESSES} -ge 1 ]; then
     done
     logger "Add to hostapd.conf: accept_mac_file=/hostapd.allow" 1
     echo "accept_mac_file=/hostapd.allow"$'\n' >> /hostapd.conf
-    ## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
-    else
-        if [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
-            logger "Add to hostapd.conf: macaddr_acl=0" 1
-            echo "macaddr_acl=0"$'\n' >> /hostapd.conf
-            DENIED=($DENY_MAC_ADDRESSES)
-            logger "Denied MAC addresses:" 0
-            for mac in "${DENIED[@]}"; do
-                echo "$mac"$'\n' >> /hostapd.deny
-                logger "$mac" 0
-            done
-            logger "Add to hostapd.conf: accept_mac_file=/hostapd.deny" 1
-            echo "deny_mac_file=/hostapd.deny"$'\n' >> /hostapd.conf
-            ## else set macaddr_acl to 0, with blank allow and deny files
-            else
-                logger "Add to hostapd.conf: macaddr_acl=0" 1
-                echo "macaddr_acl=0"$'\n' >> /hostapd.conf
-        fi
-
+## else set macaddr_acl to 0, and add denied MAC addresses to hostapd.deny
+elif [ ${#DENY_MAC_ADDRESSES} -ge 1 ]; then
+        logger "Add to hostapd.conf: macaddr_acl=0" 1
+        echo "macaddr_acl=0"$'\n' >> /hostapd.conf
+        DENIED=($DENY_MAC_ADDRESSES)
+        logger "Denied MAC addresses:" 0
+        for mac in "${DENIED[@]}"; do
+            echo "$mac"$'\n' >> /hostapd.deny
+            logger "$mac" 0
+        done
+        logger "Add to hostapd.conf: accept_mac_file=/hostapd.deny" 1
+        echo "deny_mac_file=/hostapd.deny"$'\n' >> /hostapd.conf
+## else set macaddr_acl to 0, with blank allow and deny files
+else
+    logger "Add to hostapd.conf: macaddr_acl=0" 1
+    echo "macaddr_acl=0"$'\n' >> /hostapd.conf
 fi
+
 
 # Set address for the selected interface. Not sure why this is now not being set via /etc/network/interfaces, but maybe interfaces file is no longer required...
 ifconfig $INTERFACE $ADDRESS netmask $NETMASK broadcast $BROADCAST
@@ -183,25 +181,17 @@ if $(bashio::config.true "dhcp"); then
             logger "Add to dnsmasq.conf: $override" 0
         done
     fi
-
-    # Setup Client Internet Access
-    if $(bashio::config.true "client_internet_access"); then
-
-        ## Route traffic
-        iptables-nft -t nat -A POSTROUTING -o $DEFAULT_ROUTE_INTERFACE -j MASQUERADE
-        iptables-nft -P FORWARD ACCEPT
-        iptables-nft -F FORWARD
-    fi
 else
 	logger "# DHCP not enabled. Skipping dnsmasq" 1
-    # Setup Client Internet Access
-    ## No DHCP == No DNS. Must be set manually on client.
-    ## Step 1: Routing
-    if $(bashio::config.true "client_internet_access"); then
-        iptables-nft -t nat -A POSTROUTING -o $DEFAULT_ROUTE_INTERFACE -j MASQUERADE
-        iptables-nft -P FORWARD ACCEPT
-        iptables-nft -F FORWARD
-    fi
+fi
+
+# Setup Client Internet Access
+if $(bashio::config.true "client_internet_access"); then
+
+    ## Route traffic
+    iptables-nft -t nat -A POSTROUTING -o $DEFAULT_ROUTE_INTERFACE -j MASQUERADE
+    iptables-nft -P FORWARD ACCEPT
+    iptables-nft -F FORWARD
 fi
 
 # Start dnsmasq if DHCP is enabled in config
