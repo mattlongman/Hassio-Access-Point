@@ -6,7 +6,7 @@
 		},
 		"wpa_passphrase": {
 			"name": "WPA2 Password",
-			"description": ""
+			"description": "The password for the WiFi network. Must be at least 8 characters long."
 		},
 		"channel": {
 			"name": "2.4GHz Channel Number",
@@ -66,7 +66,7 @@
 		},
 		"client_dns_override": {
 			"name": "Client DNS ",
-			"description": "A list of DNS servers to use. If empty, will use Homeassistant's default DNS servers."
+			"description": "A list of DNS server IPs to use. If empty, will use Homeassistant's default DNS servers."
 		},
 		"dnsmasq_config_override": {
 			"name": "DNSMASQ Custom Configuration",

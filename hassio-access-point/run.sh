@@ -76,6 +76,10 @@ for required_var in "${required_vars[@]}"; do
     bashio::config.require $required_var "An AP cannot be created without this information"
 done
 
+if [ ${#WPA_PASSPHRASE} -lt 8 ] ; then
+    bashio::exit.nok "The WPA password must be at least 8 characters long!"
+fi
+
 # Setup hostapd.conf
 logger "# Setup hostapd:" 1
 logger "Add to hostapd.conf: ssid=$SSID" 1
