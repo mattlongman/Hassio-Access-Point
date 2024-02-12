@@ -20,6 +20,18 @@ logger(){
 
 CONFIG_PATH=/data/options.json
 
+# Convert integer configs to boolean, to avoid a breaking old configs
+declare -r bool_configs=( hide_ssid client_internet_access dhcp )
+for i in $bool_configs ; do
+    if bashio::config.true $i || bashio::config.false $i ; then
+        continue
+    elif [ $config_value -eq 0 ] ; then
+        bashio::addon.option $config_value false
+    else
+        bashio::addon.option $config_value true
+    fi
+done
+
 SSID=$(bashio::config "ssid")
 WPA_PASSPHRASE=$(bashio::config "wpa_passphrase")
 CHANNEL=$(bashio::config "channel")
