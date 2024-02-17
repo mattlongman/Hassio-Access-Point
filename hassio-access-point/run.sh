@@ -61,9 +61,6 @@ logger "Add to /etc/network/interfaces: iface $INTERFACE inet static" 1
 # Create and add our interface to interfaces file
 echo "iface $INTERFACE inet static"$'\n' >> /etc/network/interfaces
 
-logger "Run command: nmcli dev set $INTERFACE managed no" 1
-nmcli dev set $INTERFACE managed no
-
 logger "Run command: ip link set $INTERFACE down" 1
 ip link set $INTERFACE down
 
