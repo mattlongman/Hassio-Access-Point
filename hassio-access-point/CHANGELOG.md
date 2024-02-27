@@ -1,10 +1,20 @@
 # Changelog
 
-## [Unreleased]
+## [0.5.0] - 2024-02-27
 
-### Notes:
-- Error: "wlan0: Could not connect to kernel driver" - https://raspberrypi.stackexchange.com/a/88297
-- **If anyone has any knowledge relating to the underlying modules, or just wants to assist with testing this addon, please get in touch, submit PRs, etc.**
+All changes for this version are in [PR-56](https://github.com/mattlongman/Hassio-Access-Point/pull/63) from [ROBOT0-VT](https://github.com/ROBOT0-VT) (New maintainer! =D).
+
+### Added
+- Validation for addon configuration menu
+- English translations strings for more clear explanation of config options
+    - Translations for other languages are welcome via pull request
+
+### Changed
+- Allow some addon config options to be optional
+- Main script now uses `bashio` instead of `jq` to read config options
+- Main script now uses `bashio` for checking of config options where feasible
+- Config file has been converted to YAML format, for consistency with official HASSOS addons
+- General cleanup
 
 ## [0.4.8] - 2023-10-19
 
