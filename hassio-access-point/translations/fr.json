@@ -1,0 +1,76 @@
+{
+	"configuration": {
+		"ssid": {
+			"name": "SSID",
+			"description": "Le nom du réseau WiFi que vous voulez créer."
+		},
+		"wpa_passphrase": {
+			"name": "Mot de passe WPA2",
+			"description": "Le mot de passe pour votre réseau WiFi. Doit avoir au moins 8 caractères."
+		},
+		"channel": {
+			"name": "Numéro du canal 2,4GHz",
+			"description": "Le canal sur lequel diffuser. Si vous n'êtes pas sûr, les canaux 1, 6 ou 11 sont recommandés."
+		},
+		"address": {
+			"name": "Adresse IP de l'hôte",
+			"description": "Il s'agit de l'adresse IP de l'appareil Homeassistant sur le nouveau sous-réseau, qui fait office de routeur et (optionnellement) de serveur DHCP/DNS."
+		},
+		"netmask": {
+			"name": "Masque de sous-réseau",
+			"description": "Le masque de réseau du sous-réseau hébergé. Laisser la valeur par défaut si vous n'êtes pas sûr."
+		},
+		"broadcast": {
+			"name": "Adresse de diffusion du sous-réseau",
+			"description": "L'adresse de diffusion du réseau. Doit toujours être la dernière adresse du sous-réseau. Laissez par défaut si vous n'êtes pas sûr."
+		},
+		"interface": {
+			"name": "Interface réseau",
+			"description": "L'interface réseau sans-fil à utiliser pour héberger ce réseau. Sur un Raspberry Pi, celle intégrée est wlan0 (défaut)."
+		},
+		"hide_ssid": {
+			"name": "Cacher le SSID du réseau",
+			"description": "Cacher ou non le SSID du réseau. À utiliser avec précausion."
+		},
+		"dhcp": {
+			"name": "Activer le server DHCP",
+			"description": "Activer ou non un serveur DHCP DNSMASQ sur le sous-réseau."
+		},
+		"dhcp_start_addr": {
+			"name": "Départ de la plage IP DHCP",
+			"description": "Le départ de la plage d'adresses IP qui seront automatiquement assignées aux appareils."
+		},
+		"dhcp_end_addr": {
+			"name": "Fin de la plage IP DHCP",
+			"description": "La fin de la plage d'adresses IP automatiquement assignées aux appareils."
+		},
+		"allow_mac_addresses": {
+			"name": "Liste blanche d'adresses MAC",
+			"description": "Liste des addresses MAC autorisées à se connecter au réseau. Tout les autres appareils seront bloqués. Cette liste prime sur l'option 'Liste noire d'adresse MAC'."
+		},
+		"deny_mac_addresses": {
+			"name": "Liste noire d'adresse MAC",
+			"description": "Liste des addresses MAC NON autorisées à se connecter au réseau. Tout les autres appareils seront autorisés."
+		},
+		"debug": {
+			"name": "",
+			"description": ""
+		},
+		"hostapd_config_override": {
+			"name": "Configuration personnalisée de HOSTAPD",
+			"description": "Liste d'options à ajouter au fichier `hostpad.conf`. Ne pas modifier si vous ne savez pas ce que vous faîtes."
+		},
+		"client_internet_access": {
+			"name": "Autoriser l'accès internet",
+			"description": "Autoriser ou non l'accès internet au appreils connectés."
+		},
+		"client_dns_override": {
+			"name": "Client DNS",
+			"description": "Liste d'adresses IP de serveur DNS à utiliser. Si vide, utilisera les serveurs DNS par défaut de Home Assisstant."
+		},
+		"dnsmasq_config_override": {
+			"name": "Configuration personnalisée de DNSMASQ",
+			"description": "Liste d'options à ajouter au fichier `dnsmasq.conf`. Ne pas modifier si vous ne savez pas ce que vous faîtes."
+		}
+	}
+}

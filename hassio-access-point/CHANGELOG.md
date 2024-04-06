@@ -1,13 +1,18 @@
 # Changelog
 
-## [0.5.1] - 2024-04-06
+## [0.5.2] - 2024-04-06
 
 ### Fixed
 - Adjusted repo to use linux line endings again (my bad!)
 
+## [0.5.1] - 2024-03-11
+
+### Added
+-  [PR-69](https://github.com/mattlongman/Hassio-Access-Point/pull/) (nice!!!) from [Hactys](https://github.com/Hactys): Added French translation for configs
+
 ## [0.5.0] - 2024-02-27
 
-All changes for this version are in [PR-56](https://github.com/mattlongman/Hassio-Access-Point/pull/63) from [ROBOT0-VT](https://github.com/ROBOT0-VT) (New maintainer! =D).
+All changes for this version are in [PR-63](https://github.com/mattlongman/Hassio-Access-Point/pull/63) from [ROBOT0-VT](https://github.com/ROBOT0-VT) (New maintainer! =D).
 
 ### Added
 - Validation for addon configuration menu
