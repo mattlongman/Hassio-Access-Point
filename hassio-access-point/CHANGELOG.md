@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.2] - 2024-04-02
+
+### Fixed
+- Fixed repo to use LF again (my bad!)
+
 ## [0.5.1] - 2024-03-11
 
 ### Added
