@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.2.1] - 2024-04-02
+
+### Fixed
+- Hotfix for a typo in the previous version
+- Closes [#73](https://github.com/mattlongman/Hassio-Access-Point/issues/73) (Thanks for the issue, @muellermartin!)
+
 ## [0.5.2] - 2024-04-02
 
 ### Fixed
